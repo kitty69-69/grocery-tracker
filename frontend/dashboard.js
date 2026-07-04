@@ -1,3 +1,5 @@
+const API_URL = "https://grocery-tracker-api.onrender.com";
+
 const token = localStorage.getItem("token");
 const user = JSON.parse(localStorage.getItem("user"));
 
@@ -19,10 +21,6 @@ const categoryFilter = document.getElementById("categoryFilter");
 let groceries = [];
 let sortAlphabetically = false;
 
-// ===============================
-// Dark / Light Mode
-// ===============================
-
 const savedTheme = localStorage.getItem(`theme_${user.id}`);
 
 if (savedTheme === "dark") {
@@ -42,23 +40,14 @@ themeToggle.addEventListener("click", () => {
   }
 });
 
-// ===============================
-// Load Groceries
-// ===============================
-
 async function loadGroceries() {
-  const res = await fetch(`http://localhost:5000/api/groceries/${user.id}`);
+  const res = await fetch(`${API_URL}/api/groceries/${user.id}`);
   groceries = await res.json();
   displayGroceries();
 }
 
-// ===============================
-// Display Groceries
-// ===============================
-
 function displayGroceries() {
   groceryList.innerHTML = "";
-
   let total = 0;
 
   let displayItems = [...groceries];
@@ -67,13 +56,13 @@ function displayGroceries() {
   const selectedCategory = categoryFilter.value;
 
   if (searchText) {
-    displayItems = displayItems.filter(item =>
+    displayItems = displayItems.filter((item) =>
       item.item_name.toLowerCase().includes(searchText)
     );
   }
 
   if (selectedCategory !== "All") {
-    displayItems = displayItems.filter(item =>
+    displayItems = displayItems.filter((item) =>
       item.category === selectedCategory
     );
   }
@@ -84,8 +73,7 @@ function displayGroceries() {
     );
   }
 
-  displayItems.forEach(item => {
-
+  displayItems.forEach((item) => {
     const itemTotal = item.quantity * item.price;
     total += itemTotal;
 
@@ -98,15 +86,10 @@ function displayGroceries() {
             onchange="togglePurchased(${item.id}, ${item.purchased ? 0 : 1})"
           >
         </td>
-
         <td>${item.item_name}</td>
-
         <td>${item.category || "Other"}</td>
-
         <td>${item.quantity}</td>
-
         <td>$${itemTotal.toFixed(2)}</td>
-
         <td>
           <button
             class="btn btn-sm btn-danger"
@@ -122,12 +105,7 @@ function displayGroceries() {
   totalAmount.innerText = total.toFixed(2);
 }
 
-// ===============================
-// Add Item
-// ===============================
-
 groceryForm.addEventListener("submit", async (e) => {
-
   e.preventDefault();
 
   const itemName = document.getElementById("itemName").value;
@@ -135,14 +113,11 @@ groceryForm.addEventListener("submit", async (e) => {
   const price = document.getElementById("price").value;
   const category = document.getElementById("category").value;
 
-  await fetch("http://localhost:5000/api/groceries/add", {
-
+  await fetch(`${API_URL}/api/groceries/add`, {
     method: "POST",
-
     headers: {
       "Content-Type": "application/json",
     },
-
     body: JSON.stringify({
       userId: user.id,
       itemName,
@@ -156,33 +131,20 @@ groceryForm.addEventListener("submit", async (e) => {
   loadGroceries();
 });
 
-// ===============================
-// Delete Item
-// ===============================
-
 async function deleteItem(id) {
-
-  await fetch(`http://localhost:5000/api/groceries/${id}`, {
+  await fetch(`${API_URL}/api/groceries/${id}`, {
     method: "DELETE",
   });
 
   loadGroceries();
 }
 
-// ===============================
-// Purchased
-// ===============================
-
 async function togglePurchased(id, purchased) {
-
-  await fetch(`http://localhost:5000/api/groceries/toggle/${id}`, {
-
+  await fetch(`${API_URL}/api/groceries/toggle/${id}`, {
     method: "PATCH",
-
     headers: {
       "Content-Type": "application/json",
     },
-
     body: JSON.stringify({
       purchased,
     }),
@@ -191,12 +153,7 @@ async function togglePurchased(id, purchased) {
   loadGroceries();
 }
 
-// ===============================
-// Sort
-// ===============================
-
 sortBtn.addEventListener("click", () => {
-
   sortAlphabetically = !sortAlphabetically;
 
   sortBtn.innerText = sortAlphabetically
@@ -206,19 +163,10 @@ sortBtn.addEventListener("click", () => {
   displayGroceries();
 });
 
-// ===============================
-// Search
-// ===============================
-
 searchInput.addEventListener("input", displayGroceries);
 categoryFilter.addEventListener("change", displayGroceries);
 
-// ===============================
-// Show / Hide Password Panel
-// ===============================
-
 function togglePasswordMenu() {
-
   const panel = document.getElementById("passwordPanel");
 
   if (panel.style.display === "none" || panel.style.display === "") {
@@ -228,12 +176,7 @@ function togglePasswordMenu() {
   }
 }
 
-// ===============================
-// Change Password
-// ===============================
-
 async function changePassword() {
-
   const oldPassword = document.getElementById("oldPassword").value;
   const newPassword = document.getElementById("newPassword").value;
 
@@ -242,22 +185,17 @@ async function changePassword() {
     return;
   }
 
-  const res = await fetch(
-    "http://localhost:5000/api/auth/change-password",
-    {
-      method: "PUT",
-
-      headers: {
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        userId: user.id,
-        oldPassword,
-        newPassword,
-      }),
-    }
-  );
+  const res = await fetch(`${API_URL}/api/auth/change-password`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      userId: user.id,
+      oldPassword,
+      newPassword,
+    }),
+  });
 
   const data = await res.json();
 
@@ -266,25 +204,14 @@ async function changePassword() {
   if (res.ok) {
     document.getElementById("oldPassword").value = "";
     document.getElementById("newPassword").value = "";
-
     document.getElementById("passwordPanel").style.display = "none";
   }
 }
 
-// ===============================
-// Logout
-// ===============================
-
 function logout() {
-
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-
   window.location.href = "login.html";
 }
-
-// ===============================
-// Start
-// ===============================
 
 loadGroceries();
