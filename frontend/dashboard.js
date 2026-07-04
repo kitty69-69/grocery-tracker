@@ -4,7 +4,7 @@ const token = localStorage.getItem("token");
 const user = JSON.parse(localStorage.getItem("user"));
 
 if (!token || !user) {
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 }
 
 document.getElementById("userInfo").innerText =
@@ -211,7 +211,7 @@ async function changePassword() {
 function logout() {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.location.href = "login.html";
+  window.location.href = "index.html";
 }
 
 loadGroceries();

@@ -26,6 +26,6 @@ registerForm.addEventListener("submit", async (e) => {
   alert(data.message);
 
   if (res.ok) {
-    window.location.href = "login.html";
+    window.location.href = "index.html";
   }
 });
